@@ -75,3 +75,44 @@ class Analytic(AnalyticBase):
     created_at: datetime
     class Config:
         from_attributes = True
+
+class DetectionHistoryBase(BaseModel):
+    sign_name: str
+    confidence: float
+
+class DetectionHistoryCreate(DetectionHistoryBase):
+    user_id: str
+
+class DetectionHistory(DetectionHistoryBase):
+    id: int
+    timestamp: datetime
+    class Config:
+        from_attributes = True
+
+class ModelPredictionBase(BaseModel):
+    prediction_data: str
+    top_sign: str
+    confidence: float
+
+class ModelPredictionCreate(ModelPredictionBase):
+    user_id: str
+
+class ModelPrediction(ModelPredictionBase):
+    id: int
+    created_at: datetime
+    class Config:
+        from_attributes = True
+
+class LogBase(BaseModel):
+    level: str
+    message: str
+    module: str
+
+class LogCreate(LogBase):
+    user_id: Optional[str] = None
+
+class Log(LogBase):
+    id: int
+    created_at: datetime
+    class Config:
+        from_attributes = True

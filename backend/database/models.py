@@ -66,3 +66,32 @@ class Analytic(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     user = relationship("User", back_populates="analytics")
+
+class DetectionHistory(Base):
+    __tablename__ = "detection_history"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(String, ForeignKey("users.id"))
+    sign_name = Column(String)
+    confidence = Column(Float)
+    timestamp = Column(DateTime(timezone=True), server_default=func.now())
+
+class ModelPrediction(Base):
+    __tablename__ = "model_predictions"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(String, ForeignKey("users.id"))
+    prediction_data = Column(Text) # JSON string of raw prediction probabilities
+    top_sign = Column(String)
+    confidence = Column(Float)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+class Log(Base):
+    __tablename__ = "logs"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(String, ForeignKey("users.id"), nullable=True)
+    level = Column(String) # INFO, ERROR, WARNING
+    message = Column(Text)
+    module = Column(String)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())

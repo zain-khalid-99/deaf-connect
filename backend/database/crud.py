@@ -97,3 +97,30 @@ def create_analytic_entry(db: Session, analytic: schemas.AnalyticCreate):
     db.commit()
     db.refresh(db_analytic)
     return db_analytic
+
+# Detection History CRUD
+def create_detection_history(db: Session, history: schemas.DetectionHistoryCreate):
+    db_history = models.DetectionHistory(**history.model_dump())
+    db.add(db_history)
+    db.commit()
+    db.refresh(db_history)
+    return db_history
+
+def get_detection_history(db: Session, user_id: str, limit: int = 100):
+    return db.query(models.DetectionHistory).filter(models.DetectionHistory.user_id == user_id).order_by(models.DetectionHistory.timestamp.desc()).limit(limit).all()
+
+# Model Prediction CRUD
+def create_model_prediction(db: Session, prediction: schemas.ModelPredictionCreate):
+    db_pred = models.ModelPrediction(**prediction.model_dump())
+    db.add(db_pred)
+    db.commit()
+    db.refresh(db_pred)
+    return db_pred
+
+# Log CRUD
+def create_log(db: Session, log: schemas.LogCreate):
+    db_log = models.Log(**log.model_dump())
+    db.add(db_log)
+    db.commit()
+    db.refresh(db_log)
+    return db_log
