@@ -16,7 +16,7 @@ seaborn==0.13.2
 
 tqdm==4.66.4
 
-av==11.0.0
+av==12.3.0
 aiortc==1.9.0
 
 sqlalchemy==2.0.30
