@@ -1,0 +1,22 @@
+{
+  "yes": 0,
+  "no": 1,
+  "fine": 2,
+  "wrong": 3,
+  "who": 4,
+  "family": 5,
+  "mother": 6,
+  "yourself": 7,
+  "help": 8,
+  "go": 9,
+  "like": 10,
+  "drink": 11,
+  "finish": 12,
+  "now": 13,
+  "before": 14,
+  "later": 15,
+  "lonely": 16,
+  "fun": 17,
+  "telephone": 18,
+  "bed": 19
+}

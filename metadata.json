@@ -1,0 +1,14 @@
+{
+  "name": "Deaf Connect",
+  "description": "A production-level real-time ASL-to-English communication platform featuring gesture recognition, natural language translation, and voice synthesis.",
+  "requestFramePermissions": [
+    "camera",
+    "microphone"
+  ],
+  "majorCapabilities": [
+    "AI",
+    "Real-time Video",
+    "Speech-to-Text",
+    "Text-to-Speech"
+  ]
+}

@@ -1,0 +1,124 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  
+  --color-brand-bg-primary: var(--bg-primary);
+  --color-brand-bg-secondary: var(--bg-secondary);
+  --color-brand-card: var(--card-bg);
+  --color-brand-border: var(--border-color);
+  --color-brand-primary: #000000;
+  --color-brand-secondary: #4B5563;
+  --color-brand-text-primary: var(--text-primary);
+  --color-brand-text-secondary: var(--text-secondary);
+  
+  --color-brand-success: #10B981;
+  --color-brand-warning: #F59E0B;
+  --color-brand-error: #EF4444;
+  
+  --radius-custom: 4px;
+}
+
+:root {
+  --bg-primary: #FFFFFF;
+  --bg-secondary: #FAFAFA;
+  --card-bg: #FFFFFF;
+  --border-color: #E5E7EB;
+  --text-primary: #000000;
+  --text-secondary: #6B7280;
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+/* For dark mode support if needed later, but focusing on light mode as requested */
+.dark {
+  --bg-primary: #0A0A0A;
+  --bg-secondary: #121212;
+  --card-bg: #1A1A1A;
+  --border-color: #262626;
+  --text-primary: #FFFFFF;
+  --text-secondary: #A3A3A3;
+}
+
+@layer base {
+  body {
+    @apply bg-brand-bg-primary text-brand-text-primary font-sans;
+    margin: 0;
+    height: 100vh;
+    overflow: hidden;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-bold tracking-tight;
+  }
+}
+
+@layer components {
+  .glass-card {
+    @apply bg-brand-card border border-brand-border rounded-lg shadow-sm;
+    transition: all 0.2s ease;
+  }
+  
+  .glass-card:hover {
+    @apply shadow-md border-gray-300;
+  }
+
+  .btn-primary {
+    @apply bg-black text-white px-4 py-2 rounded-md font-semibold hover:bg-gray-800 transition-all active:scale-95 disabled:opacity-50;
+  }
+
+  .btn-secondary {
+    @apply bg-white text-black border border-brand-border px-4 py-2 rounded-md font-semibold hover:bg-gray-50 transition-all active:scale-95 disabled:opacity-50;
+  }
+
+  .input-field {
+    @apply bg-white border border-brand-border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-black/5 focus:border-black transition-all;
+  }
+}
+
+.logo-gradient {
+  background: black;
+}
+
+.glow-primary {
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.05);
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #E5E7EB;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #D1D5DB;
+}
+
+.sidebar-scroll::-webkit-scrollbar {
+  width: 2px;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.4s ease-out forwards;
+}
+
+
