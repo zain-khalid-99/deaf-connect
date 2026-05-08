@@ -1,6 +1,10 @@
+"""
+Module: analytics.py
+Purpose: FastAPI router for analytics endpoints.
+"""
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
-from backend.database import connection, crud
+from backend.database import connection, crud, schemas  # FIX: added missing 'schemas' import
 
 router = APIRouter()
 

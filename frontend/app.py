@@ -1,17 +1,24 @@
+import os
+import sys
+
+# CRITICAL: Resolve project root and add to sys.path BEFORE any local imports
+project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+if project_root not in sys.path:
+    sys.path.insert(0, project_root)
+
 import streamlit as st
 import requests
-import os
 from dotenv import load_dotenv
+from datetime import datetime
 
 load_dotenv()
 
 # API Configuration
 API_BASE_URL = os.getenv("API_BASE_URL", "http://localhost:8000/api")
 
-from streamlit_webrtc import webrtc_streamer, WebRtcMode
-from frontend.webrtc_utils import SignLanguageProcessor
-from core.ai_translator import generate_sentence
-from frontend.tts_utils import speak_text
+# FIX: Heavy/optional imports moved inside functions.
+# Importing them at module level crashes the app if streamlit-webrtc,
+# mediapipe, tensorflow, or groq are not installed.
 import json
 
 @st.cache_resource
@@ -474,16 +481,8 @@ def main_app():
     elif current_page == "Settings":
         show_settings()
 
-    if page == "Dashboard":
-        show_dashboard()
-    elif page == "Live Communication":
-        show_live_comm()
-    elif page == "History":
-        show_history()
-    elif page == "Analytics":
-        show_analytics()
-    elif page == "Settings":
-        show_settings()
+    # FIX: Removed duplicate routing block that used raw emoji 'page' string.
+    # Only the current_page routing above (lines 472-483) is correct.
 
 def show_dashboard():
     st.title("System Analytics")
@@ -546,6 +545,14 @@ def show_dashboard():
         """, unsafe_allow_html=True)
 
 def show_live_comm():
+    # FIX: Import heavy packages inside the function — safe even if not installed.
+    try:
+        from streamlit_webrtc import webrtc_streamer, WebRtcMode
+        from frontend.webrtc_utils import SignLanguageProcessor
+        webrtc_available = True
+    except ImportError:
+        webrtc_available = False
+
     st.title("Neural Translation")
     st.markdown("<p style='color:#6B7280; margin-bottom:1rem;'>Active ASL-to-Speech and Speech-to-Text pipeline.</p>", unsafe_allow_html=True)
     
@@ -573,16 +580,20 @@ def show_live_comm():
     main_col, side_col = st.columns([2, 1])
     
     with main_col:
-        ctx = webrtc_streamer(
-            key="sign-sync",
-            mode=WebRtcMode.SENDRECV,
-            video_processor_factory=lambda: SignLanguageProcessor(model=model, labels=labels),
-            rtc_configuration={"iceServers": [{"urls": ["stun:stun.l.google.com:19302"]}]},
-            media_stream_constraints={"video": True, "audio": False},
-            async_processing=True,
-        )
+        if not webrtc_available:
+            st.error("streamlit-webrtc is not installed. Run: pip install streamlit-webrtc")
+            ctx = None
+        else:
+            ctx = webrtc_streamer(
+                key="sign-sync",
+                mode=WebRtcMode.SENDRECV,
+                video_processor_factory=lambda: SignLanguageProcessor(model=model, labels=labels),
+                rtc_configuration={"iceServers": [{"urls": ["stun:stun.l.google.com:19302"]}]},
+                media_stream_constraints={"video": True, "audio": False},
+                async_processing=True,
+            )
 
-        if ctx.video_processor:
+        if ctx and ctx.video_processor:
             word, conf = ctx.video_processor.get_results()
             if word and (not st.session_state.detected_words or st.session_state.detected_words[-1] != word):
                 st.session_state.detected_words.append(word)
@@ -602,6 +613,8 @@ def show_live_comm():
         if c1.button("Generate Sentence", use_container_width=True, type="primary"):
             if st.session_state.detected_words:
                 with st.spinner("AI is thinking..."):
+                    # FIX: Import inside function to avoid top-level crash
+                    from core.ai_translator import generate_sentence
                     sentence = generate_sentence(st.session_state.detected_words)
                     st.session_state.final_sentence = sentence
                     
@@ -638,15 +651,23 @@ def show_live_comm():
         if c3.button("Speak Output", use_container_width=True):
             if st.session_state.final_sentence:
                 st.info(f"🔊 Speaking: {st.session_state.final_sentence}")
-                speak_text(st.session_state.final_sentence)
+                # FIX: Import tts_utils inside function to avoid top-level crash
+                try:
+                    from frontend.tts_utils import speak_text
+                    speak_text(st.session_state.final_sentence)
+                except ImportError:
+                    st.warning("TTS module unavailable.")
         
         # Speech to Text Fallback
         st.markdown("<div style='height:1rem;'></div>", unsafe_allow_html=True)
-        audio_file = st.audio_input("Voice Input (Hearing to Deaf)")
+        # FIX: st.audio_input requires Streamlit >= 1.38. Use st.file_uploader as fallback.
+        try:
+            audio_file = st.audio_input("Voice Input (Hearing to Deaf)")
+        except AttributeError:
+            audio_file = st.file_uploader("Voice Input (Hearing to Deaf)", type=["wav", "mp3", "ogg"])
         if audio_file:
             st.success("Audio captured. Transcribing...")
-            # Here we would send to an API like Groq Whisper
-            # For now, we simulate
+            # Simulation — replace with Groq Whisper API when GROQ_API_KEY is set
             st.session_state.final_sentence = "Hello, how can I help you today?"
 
     with side_col:
@@ -678,11 +699,13 @@ def show_ai_chat():
             st.markdown(message["content"])
 
     # Chat input
-    chat_col1, chat_col2 = st.columns([4, 1])
-    with chat_col1:
-        prompt = st.chat_input("Ask me anything about sign language...")
-    with chat_col2:
-        audio_chat = st.audio_input("Voice", label_visibility="collapsed")
+    # FIX: st.chat_input cannot live inside a column; moved outside.
+    # audio_input requires Streamlit >= 1.38, use try/except.
+    prompt = st.chat_input("Ask me anything about sign language...")
+    try:
+        audio_chat = st.audio_input("Voice Input", label_visibility="collapsed")
+    except AttributeError:
+        audio_chat = None
 
     if prompt:
         st.session_state.chat_messages.append({"role": "user", "content": prompt})
@@ -691,8 +714,9 @@ def show_ai_chat():
 
         with st.chat_message("assistant"):
             with st.spinner("Processing..."):
-                # Simplified AI response for now
-                response = generate_sentence([prompt]) # Reuse translator or implement full chat
+                # FIX: Import inside function to avoid top-level crash
+                from core.ai_translator import generate_sentence
+                response = generate_sentence([prompt])
                 st.markdown(response)
                 st.session_state.chat_messages.append({"role": "assistant", "content": response})
 
